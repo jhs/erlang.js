@@ -40,6 +40,10 @@ var Encoder = function() {
     result.push(lib.tags.STRING);
 
     var bytes = new Buffer(x, 'utf8');
+    if(bytes.length != x.length) {
+      // TODO: Some kind of warning that this should probably be a binary since it is not only low-ASCII.
+    }
+
     result.push(lib.uint16(bytes.length));
     for(var a = 0; a < bytes.length; a++)
       result.push(bytes[a]);
