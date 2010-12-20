@@ -58,3 +58,8 @@ exports.uint32 = function(n) {
          , n >>  8 & 0xff
          , n >>  0 & 0xff ];
 }
+
+exports.uint16 = function(n) {
+  return [ n >> 16 & 0xff
+         , n >>  0 & 0xff ];
+}
