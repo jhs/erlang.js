@@ -6,6 +6,8 @@ function is_int(val) {
 
 // Use object creation because I don't like object literal syntax to place functions in a namespace.
 var Encoder = function() {
+  var self = this;
+
   this.encode = function(term) {
     return this[lib.typeOf(term)].apply(this, [term]);
   }
@@ -19,6 +21,19 @@ var Encoder = function() {
       return [lib.tags.SMALL_INTEGER, x];
     else
       throw new Error('Unknown integer: ' + x);
+  }
+
+  this.array = function(x) {
+    var result = []
+    if(x.length == 0) {
+      result.push(lib.tags.NIL);
+    } else {
+      result.push(lib.tags.LIST);
+      result.push(lib.uint32(x.length));
+      result.push(x.map(function(e) { return self.encode(e) }));
+    }
+
+    return result;
   }
 }
 

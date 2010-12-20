@@ -51,3 +51,10 @@ flatten = exports.flatten = function (ar) {
     return state.concat(typeOf(elem) === 'array' ? flatten(elem) : [elem]);
   }, [])
 }
+
+exports.uint32 = function(n) {
+  return [ n >> 24 & 0xff
+         , n >> 16 & 0xff
+         , n >>  8 & 0xff
+         , n >>  0 & 0xff ];
+}
