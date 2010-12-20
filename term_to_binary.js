@@ -6,10 +6,12 @@ function is_int(val) {
   return (!isNaN(val)) && (parseFloat(val) === parseInt(val));
 }
 
+/* XXX This used to be used however now objects are used to create special types. Keeping for posterity.
 // Return the "meat" of a regex, or null if it is not a regex.
 function regex_of(val) {
   return lib.typeOf(val) === 'regexp' ? val.toString().slice(1, -1) : null;
 }
+*/
 
 // Use object creation because I don't like object literal syntax to place functions in a namespace.
 var Encoder = function() {
@@ -33,7 +35,7 @@ var Encoder = function() {
       throw new Error('Unknown integer: ' + x);
   }
 
-  this.raw_array = function(x) {
+  this.array = function(x) {
     // Simple array encoding, without worrying about tagging.
     var result = []
       , encoded = [];
@@ -56,28 +58,23 @@ var Encoder = function() {
     return result;
   }
 
-  this.array = function(x) {
-    if(x.length !== 2)
-      // All arays not of length 2 are innocent.
-      return self.raw_array(x);
+  this.object = function(x) {
+    if(Object.keys(x).length !== 1)
+      throw new Error("Don't know how to process: " + sys.inspect(x));
 
-    // 2-Arrays are used to encode special-cases where Javascript has no syntax to match Erlang.
-    var tag = x[0], val = x[1];
-    var re = regex_of(tag);
+    var tag = Object.keys(x)[0]
+    var val = x[tag];
+    var valType = lib.typeOf(val);
 
-    if(!re)
-      // Nope, just an innocent 2-array.
-      return self.raw_array(x);
-
-    if((re === 'binary' || re === 'b') && lib.typeOf(val) === 'string')
+    if((tag === 'binary' || tag === 'b') && valType === 'string')
       // Encode the given string as a binary.
       return self.encode(new Buffer(val, 'utf8'));
 
-    if((re === 'atom' || re === 'a') && lib.typeOf(val) === 'string')
+    if((tag === 'atom' || tag === 'a') && valType === 'string')
       // Encode the string as an atom.
       return self.atom(val);
 
-    if((re === 'tuple' || re === 't') && lib.typeOf(val) === 'array')
+    if((tag === 'tuple' || tag === 't') && valType === 'array')
       // Encode the array as a tuple.
       return self.tuple(val);
 

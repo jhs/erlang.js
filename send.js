@@ -4,15 +4,14 @@ var term_to_binary = require('./term_to_binary');
 var t = [                          // array
         , ['two', 'array']         // Innocent 2-array
         , "ABCDE"                  // string (char list, encoded as STRING)
-        , [/a/, 'foo']             // atom
-        , [/a/, 'GET']
-        , [/b/, 'ภาษาไทย']         // binary
+        , {a:'foo'}                // atom
+        , {a:'GET'}
+        , {b:'ภาษาไทย'}            // binary
         , [[[[23, 'skidoo']]]]     // nested objects
-        , [/t/, [ 'tuple'          // tuple
-                , 'here'
-                , [/a/, 'too']
-                ]
-          ]
+        , {t:['tuple', {a:'here'}  // tuple
+             , {a:'too'}
+             ]
+          }
         ];
 
 console.log("Sending: " + require('sys').inspect(t));
