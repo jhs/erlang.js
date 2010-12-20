@@ -1,4 +1,6 @@
-var lib = require('./lib.js');
+var sys = require('sys')
+  , lib = require('./lib.js')
+  ;
 
 function is_int(val) {
   return (!isNaN(val)) && (parseFloat(val) === parseInt(val));
@@ -9,7 +11,10 @@ var Encoder = function() {
   var self = this;
 
   this.encode = function(term) {
-    return this[lib.typeOf(term)].apply(this, [term]);
+    var encoder = this[lib.typeOf(term)];
+    if(!encoder)
+      throw new Error("Do not know how to encode " + lib.typeOf(term) + ': ' + sys.inspect(term));
+    return encoder.apply(self, [term]);
   }
 
   this.number = function(x) {
