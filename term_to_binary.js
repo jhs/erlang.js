@@ -35,12 +35,23 @@ var Encoder = function() {
 
   this.raw_array = function(x) {
     // Simple array encoding, without worrying about tagging.
-    var result = [];
-    if(x.length) {
-      result.push( lib.tags.LIST
-                 , lib.uint32(x.length)
-                 , x.map(function(e) { return self.encode(e) }));
+    var result = []
+      , encoded = [];
+
+    for(var a = 0; a < x.length; a++) {
+      var val = x[a];
+      if(!val)
+        // TODO: Warning: new Error("Bad array: " + sys.inspect(x));
+        continue;
+      encoded.push(self.encode(val));
     }
+
+    if(encoded.length) {
+      result.push( lib.tags.LIST
+                 , lib.uint32(encoded.length)
+                 , encoded );
+    }
+
     result.push(lib.tags.NIL);
     return result;
   }
