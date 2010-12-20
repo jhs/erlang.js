@@ -6,6 +6,11 @@ function is_int(val) {
   return (!isNaN(val)) && (parseFloat(val) === parseInt(val));
 }
 
+// Return the "meat" of a regex, or null if it is not a regex.
+function regex_of(val) {
+  return lib.typeOf(val) === 'regexp' ? val.toString().slice(1, -1) : null;
+}
+
 // Use object creation because I don't like object literal syntax to place functions in a namespace.
 var Encoder = function() {
   var self = this;
@@ -31,9 +36,16 @@ var Encoder = function() {
   this.array = function(x) {
     var result = []
     if(x.length) {
-      result.push(lib.tags.LIST);
-      result.push(lib.uint32(x.length));
-      result.push(x.map(function(e) { return self.encode(e) }));
+      // Arrays are used to encode special-cases where Javascript has no syntax to match Erlang.
+      if(x.length === 2 && (regex_of(x[0]) === 'binary' || regex_of(x[0]) === 'b')) {
+        // Encode the given string as a binary.
+        return self.encode(new Buffer(x[1], 'utf8'));
+      } else {
+        // Nope, just a normal array (list).
+        result.push(lib.tags.LIST);
+        result.push(lib.uint32(x.length));
+        result.push(x.map(function(e) { return self.encode(e) }));
+      }
     }
 
     result.push(lib.tags.NIL);
