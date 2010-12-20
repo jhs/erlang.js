@@ -12,6 +12,8 @@ var t = [                          // array
              , {a:'too'}
              ]
           }
+        , {t:[ {a:'booleans'}, true // Booleans
+             , false ]}
         ];
 
 console.log("Sending: " + require('sys').inspect(t));

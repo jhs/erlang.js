@@ -124,6 +124,10 @@ var Encoder = function() {
 
     return result;
   }
+
+  this.boolean = function(x) {
+    return self.atom(x ? "true" : "false");
+  }
 }
 
 var encoder = new Encoder;
