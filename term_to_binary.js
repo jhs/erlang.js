@@ -66,6 +66,10 @@ var Encoder = function() {
       // Encode the string as an atom.
       return self.atom(val);
 
+    if((re === 'tuple' || re === 't') && lib.typeOf(val) === 'array')
+      // Encode the array as a tuple.
+      return self.tuple(val);
+
     throw new Error("Unknown tag " + tag.toString() + " for value: " + sys.inspect(val));
   }
 
@@ -75,6 +79,17 @@ var Encoder = function() {
                  , lib.uint16(bytes.length) ];
     for(var a = 0; a < bytes.length; a++)
       result.push(bytes[a]);
+    return result;
+  }
+
+  this.tuple = function(x) {
+    var result = [];
+    if(x.length < 256)
+      result.push(lib.tags.SMALL_TUPLE, x.length);
+    else
+      result.push(lib.tags.LARGE_TUPLE, lib.uint32(x.length));
+
+    result.push(x.map(function(e) { return self.encode(e) }));
     return result;
   }
 
