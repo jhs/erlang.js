@@ -33,34 +33,40 @@ var Encoder = function() {
       throw new Error('Unknown integer: ' + x);
   }
 
-  this.array = function(x) {
-    var result = []
+  this.raw_array = function(x) {
+    // Simple array encoding, without worrying about tagging.
+    var result = [];
     if(x.length) {
-      // Arrays are used to encode special-cases where Javascript has no syntax to match Erlang.
-      if(x.length === 2) {
-        var tag = x[0], val = x[1];
-        var re = regex_of(tag);
-        if(re && lib.typeOf(val) !== 'string') {
-          throw new Error("Unknown value to encode: " + sys.inspect(x[1]));
-        } else if(re === 'binary' || re === 'b') {
-          // Encode the given string as a binary.
-          return self.encode(new Buffer(val, 'utf8'));
-        } else if(re === 'atom' || re === 'a') {
-          // Encode the string as an atom.
-          return self.atom(val);
-        } else if(re) {
-          throw new Error("Do not know what regex means: " + re.toString());
-        }
-      } else {
-        // Nope, just a normal array (list).
-        result.push(lib.tags.LIST);
-        result.push(lib.uint32(x.length));
-        result.push(x.map(function(e) { return self.encode(e) }));
-      }
+      result.push( lib.tags.LIST
+                 , lib.uint32(x.length)
+                 , x.map(function(e) { return self.encode(e) }));
     }
-
     result.push(lib.tags.NIL);
     return result;
+  }
+
+  this.array = function(x) {
+    if(x.length !== 2)
+      // All arays not of length 2 are innocent.
+      return self.raw_array(x);
+
+    // 2-Arrays are used to encode special-cases where Javascript has no syntax to match Erlang.
+    var tag = x[0], val = x[1];
+    var re = regex_of(tag);
+
+    if(!re)
+      // Nope, just an innocent 2-array.
+      return self.raw_array(x);
+
+    if((re === 'binary' || re === 'b') && lib.typeOf(val) === 'string')
+      // Encode the given string as a binary.
+      return self.encode(new Buffer(val, 'utf8'));
+
+    if((re === 'atom' || re === 'a') && lib.typeOf(val) === 'string')
+      // Encode the string as an atom.
+      return self.atom(val);
+
+    throw new Error("Unknown tag " + tag.toString() + " for value: " + sys.inspect(val));
   }
 
   this.atom = function(x) {
