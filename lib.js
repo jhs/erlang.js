@@ -28,19 +28,25 @@ Object.keys(exports.tags).forEach(function(key) {
   exports.tags[key] = exports.tags[key].charCodeAt(0);
 })
 
+function to_s(val) {
+  return Object.prototype.toString.apply(val);
+}
+
 typeOf = exports.typeOf = function(value) {
   var s = typeof value;
 
   // Note: using Object.prototype.toString instead of instanceof because it's not working.
   if (s === 'object') {
     if (value) {
-      if(Object.prototype.toString.apply(value) === '[object Array]') {
+      if(to_s(value) === '[object Array]') {
         s = 'array';
+      } else if(to_s(value) === '[object Buffer]') {
+        s = 'buffer';
       }
     } else {
       s = 'null';
     }
-  } else if(s === 'function' && Object.prototype.toString.apply(value) === '[object RegExp]') {
+  } else if(s === 'function' && to_s(value) === '[object RegExp]') {
     return 'regexp';
   }
   return s;
