@@ -40,6 +40,14 @@ var Encoder = function() {
     return result;
   }
 
+  this.buffer = function(x) {
+    var result = [lib.tags.BINARY];
+    result.push(lib.uint32(x.length));
+    for(var a = 0; a < x.length; a++)
+      result.push(x[a]);
+    return result;
+  }
+
   this.string = function(x) {
     var result = [];
     result.push(lib.tags.STRING);
