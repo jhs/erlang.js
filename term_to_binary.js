@@ -37,9 +37,20 @@ var Encoder = function() {
     var result = []
     if(x.length) {
       // Arrays are used to encode special-cases where Javascript has no syntax to match Erlang.
-      if(x.length === 2 && (regex_of(x[0]) === 'binary' || regex_of(x[0]) === 'b')) {
-        // Encode the given string as a binary.
-        return self.encode(new Buffer(x[1], 'utf8'));
+      if(x.length === 2) {
+        var tag = x[0], val = x[1];
+        var re = regex_of(tag);
+        if(re && lib.typeOf(val) !== 'string') {
+          throw new Error("Unknown value to encode: " + sys.inspect(x[1]));
+        } else if(re === 'binary' || re === 'b') {
+          // Encode the given string as a binary.
+          return self.encode(new Buffer(val, 'utf8'));
+        } else if(re === 'atom' || re === 'a') {
+          // Encode the string as an atom.
+          return self.atom(val);
+        } else if(re) {
+          throw new Error("Do not know what regex means: " + re.toString());
+        }
       } else {
         // Nope, just a normal array (list).
         result.push(lib.tags.LIST);
@@ -49,6 +60,15 @@ var Encoder = function() {
     }
 
     result.push(lib.tags.NIL);
+    return result;
+  }
+
+  this.atom = function(x) {
+    var bytes = new Buffer(x, 'utf8');
+    var result = [ lib.tags.ATOM
+                 , lib.uint16(bytes.length) ];
+    for(var a = 0; a < bytes.length; a++)
+      result.push(bytes[a]);
     return result;
   }
 
