@@ -55,6 +55,3 @@ exports.term_to_binary = function(term) {
   //console.log('bytes: %j', bytes);
   return new Buffer(lib.flatten(bytes));
 }
-
-//require('sys').puts(exports.term_to_binary(5));
-console.log(exports.term_to_binary(500));
