@@ -195,6 +195,6 @@ exports.optlist_to_term = optlist_to_term = function(opts) {
   return opts.map(function(el) { return element_to_opt(el) });
 }
 
-exports.optlist_to_binary = function(opts) {
-  return exports.term_to_binary(exports.optlist_to_term(opts));
+exports.optlist_to_binary = function() {
+  return exports.term_to_binary(exports.optlist_to_term.apply(this, arguments));
 }
