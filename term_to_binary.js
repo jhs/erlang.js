@@ -145,10 +145,10 @@ exports.term_to_binary = function(term) {
 //    a string like #1, it is converted, otherwise left alone -> {two, tuple}
 //
 // Booleans are converted to tuples too.
-exports.opt_list = opt_list = function(opts) {
+exports.optlist_to_term = optlist_to_term = function(opts) {
   var args = Array.prototype.slice.apply(arguments);
   if(args.length > 1)
-    return opt_list(args);
+    return optlist_to_term(args);
 
   if(typeOf(opts) !== 'array')
     throw new Error("Cannot convert to OptList: " + sys.inspect(opts));
@@ -188,9 +188,13 @@ exports.opt_list = opt_list = function(opts) {
       var key = Object.keys(el)[0];
       return to_2_tuple([key, el[key]]);
     } else {
-      throw new Error("Invalid opt_list element: " + sys.inspect(el));
+      throw new Error("Invalid optlist element: " + sys.inspect(el));
     }
   }
 
   return opts.map(function(el) { return element_to_opt(el) });
+}
+
+exports.optlist_to_binary = function(opts) {
+  return exports.term_to_binary(exports.optlist_to_term(opts));
 }
