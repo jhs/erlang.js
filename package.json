@@ -1,5 +1,5 @@
 { "name": "erlang"
-, "version": "0.1.0"
+, "version": "0.1.1"
 , "author": { "name": "Jason Smith"
             , "email": "jhs@couchone.com" }
 , "description": "Erlang interoperability with Javascript"
