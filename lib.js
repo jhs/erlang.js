@@ -1,4 +1,7 @@
 exports.VERSION_MAGIC = 131;
+exports.MAX_INTEGER = (1 << 27) - 1;
+exports.MIN_INTEGER = -(1 << 27);
+
 exports.tags = { 'SMALL_INTEGER' : 'a'
                , 'INTEGER'       : 'b'
                , 'FLOAT'         : 'c'

@@ -31,6 +31,8 @@ var Encoder = function() {
   this.int = function(x) {
     if(x >= 0 && x < 256)
       return [lib.tags.SMALL_INTEGER, x];
+    else if(lib.MIN_INTEGER <= x && x <= lib.MAX_INTEGER)
+      return [lib.tags.INTEGER, lib.uint32(x)];
     else
       throw new Error('Unknown integer: ' + x);
   }

@@ -8,6 +8,7 @@ var t = [                          // array
         , {a:'GET'}
         , {b:'ภาษาไทย'}            // binary
         , [[[[23, 'skidoo']]]]     // nested objects
+        , 123456                   // normal integer
         , {t:['tuple', {a:'here'}  // tuple
              , {a:'too'}
              ]
