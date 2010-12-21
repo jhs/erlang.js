@@ -1,5 +1,8 @@
 // The erlang.js API
 //
 
-module.exports = { "term_to_binary": require('./term_to_binary').term_to_binary
+var term_to_binary = require('./term_to_binary');
+
+module.exports = { "term_to_binary": term_to_binary.term_to_binary
+                 , "optlist_to_binary": term_to_binary.optlist_to_binary
                  }
