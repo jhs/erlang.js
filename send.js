@@ -16,6 +16,8 @@ var t = [                          // array
              , false ]}
         ];
 
+// t = term_to_binary.opt_list('extra_gravy', {cursing: false}, ['ip', {t:[127,0,0,1]}]);
+
 console.log("Sending: " + require('sys').inspect(t));
 var b = term_to_binary.term_to_binary(t);
 var fs = require('fs');

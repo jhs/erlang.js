@@ -137,3 +137,60 @@ exports.term_to_binary = function(term) {
   //console.log('bytes: %j', bytes);
   return new Buffer(lib.flatten(bytes));
 }
+
+// Provide convenience to convert to Erlang opt lists: [{verbose, true}, quiet, etc]
+// Array elements must be either:
+// 1. String, from 1 to 255 characters of only lower-case alphanumerics -> atom
+// 2. A 2-array, first element are strings like #1. If the second element is
+//    a string like #1, it is converted, otherwise left alone -> {two, tuple}
+//
+// Booleans are converted to tuples too.
+exports.opt_list = opt_list = function(opts) {
+  var args = Array.prototype.slice.apply(arguments);
+  if(args.length > 1)
+    return opt_list(args);
+
+  if(typeOf(opts) !== 'array')
+    throw new Error("Cannot convert to OptList: " + sys.inspect(opts));
+
+  var looks_like_atom = /^[a-z][a-zA-Z0-9@\._]{0,254}$/;
+
+  function to_atom(el, opts) {
+    var type = typeOf(el);
+
+    if(type === 'boolean')
+      return el;
+
+    if(type === 'string') {
+      if(looks_like_atom.test(el))
+        return {'atom': el};
+      throw new Error("Invalid atom: " + el);
+    }
+
+    if(opts && opts.identity)
+      return el;
+
+    throw new Error("Cannot convert to atom: " + sys.inspect(el));
+  }
+
+  function to_2_tuple(el) {
+    return {'tuple': [ to_atom(el[0])
+                     , to_atom(el[1], {identity:true}) ] };
+  }
+
+  function element_to_opt(el) {
+    var type = typeOf(el);
+    if(type === 'string' || type === 'boolean') {
+      return to_atom(el);
+    } else if(type === 'array' && el.length === 2) {
+      return to_2_tuple(el);
+    } else if(type === 'object' && Object.keys(el).length === 1) {
+      var key = Object.keys(el)[0];
+      return to_2_tuple([key, el[key]]);
+    } else {
+      throw new Error("Invalid opt_list element: " + sys.inspect(el));
+    }
+  }
+
+  return opts.map(function(el) { return element_to_opt(el) });
+}
