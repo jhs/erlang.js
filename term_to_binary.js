@@ -166,6 +166,8 @@ exports.optlist_to_term = optlist_to_term = function(opts) {
     if(type === 'string') {
       if(looks_like_atom.test(el))
         return {'atom': el};
+      else if(opts && opts.identity)
+        return el;
       throw new Error("Invalid atom: " + el);
     }
 
