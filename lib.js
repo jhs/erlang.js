@@ -41,11 +41,12 @@ typeOf = exports.typeOf = function(value) {
   // Note: using Object.prototype.toString instead of instanceof because it's not working.
   if (s === 'object') {
     if (value) {
-      if(to_s(value) === '[object Array]') {
+      if(to_s(value) === '[object Array]')
         s = 'array';
-      } else if(to_s(value) === '[object Buffer]') {
+      else if(to_s(value) === '[object Buffer]')
         s = 'buffer';
-      }
+      else if(typeof Buffer === 'function' && value instanceof Buffer)
+        s = 'buffer';
     } else {
       s = 'null';
     }
