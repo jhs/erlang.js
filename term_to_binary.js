@@ -17,18 +17,18 @@ function regex_of(val) {
 var Encoder = function() {
   var self = this;
 
-  this.encode = function(term) {
-    var encoder = this[lib.typeOf(term)];
+  self.encode = function(term) {
+    var encoder = self[lib.typeOf(term)];
     if(!encoder)
       throw new Error("Do not know how to encode " + lib.typeOf(term) + ': ' + sys.inspect(term));
     return encoder.apply(self, [term]);
   }
 
-  this.number = function(x) {
-    return is_int(x) ? this.int(x) : this.float(x);
+  self.number = function(x) {
+    return is_int(x) ? self.int(x) : self.float(x);
   }
 
-  this.int = function(x) {
+  self.int = function(x) {
     if(x >= 0 && x < 256)
       return [lib.tags.SMALL_INTEGER, x];
     else if(lib.MIN_INTEGER <= x && x <= lib.MAX_INTEGER)
@@ -37,7 +37,7 @@ var Encoder = function() {
       throw new Error('Unknown integer: ' + x);
   }
 
-  this.array = function(x) {
+  self.array = function(x) {
     // Simple array encoding, without worrying about tagging.
     var result = []
       , encoded = [];
@@ -60,7 +60,7 @@ var Encoder = function() {
     return result;
   }
 
-  this.object = function(x) {
+  self.object = function(x) {
     if(Object.keys(x).length !== 1)
       throw new Error("Don't know how to process: " + sys.inspect(x));
 
@@ -83,7 +83,7 @@ var Encoder = function() {
     throw new Error("Unknown tag " + tag.toString() + " for value: " + sys.inspect(val));
   }
 
-  this.atom = function(x) {
+  self.atom = function(x) {
     var bytes = new Buffer(x, 'utf8');
     var result = [ lib.tags.ATOM
                  , lib.uint16(bytes.length) ];
@@ -92,7 +92,7 @@ var Encoder = function() {
     return result;
   }
 
-  this.tuple = function(x) {
+  self.tuple = function(x) {
     var result = [];
     if(x.length < 256)
       result.push(lib.tags.SMALL_TUPLE, x.length);
@@ -103,7 +103,7 @@ var Encoder = function() {
     return result;
   }
 
-  this.buffer = function(x) {
+  self.buffer = function(x) {
     var result = [lib.tags.BINARY];
     result.push(lib.uint32(x.length));
     for(var a = 0; a < x.length; a++)
@@ -111,7 +111,7 @@ var Encoder = function() {
     return result;
   }
 
-  this.string = function(x) {
+  self.string = function(x) {
     var result = [];
     result.push(lib.tags.STRING);
 
@@ -127,7 +127,7 @@ var Encoder = function() {
     return result;
   }
 
-  this.boolean = function(x) {
+  self.boolean = function(x) {
     return self.atom(x ? "true" : "false");
   }
 }
