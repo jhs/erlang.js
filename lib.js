@@ -47,18 +47,21 @@ typeOf = exports.typeOf = function(value) {
         s = 'buffer';
       else if(typeof Buffer === 'function' && value instanceof Buffer)
         s = 'buffer';
-    } else {
+    } else
       s = 'null';
-    }
-  } else if(s === 'function' && to_s(value) === '[object RegExp]') {
-    return 'regexp';
   }
+
+  else if(s === 'function' && to_s(value) === '[object RegExp]')
+    return 'regexp';
+
   return s;
 }
 
 flatten = exports.flatten = function (ar) {
   return ar.reduce(function(state, elem) {
-    return state.concat(typeOf(elem) === 'array' ? flatten(elem) : [elem]);
+    return typeOf(elem) === 'array'
+            ? state.concat(flatten(elem))
+            : state.concat([elem])
   }, [])
 }
 
@@ -66,10 +69,10 @@ exports.uint32 = function(n) {
   return [ n >> 24 & 0xff
          , n >> 16 & 0xff
          , n >>  8 & 0xff
-         , n >>  0 & 0xff ];
+         , n >>  0 & 0xff ]
 }
 
 exports.uint16 = function(n) {
   return [ n >> 16 & 0xff
-         , n >>  0 & 0xff ];
+         , n >>  0 & 0xff ]
 }
