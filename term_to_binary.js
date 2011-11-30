@@ -6,13 +6,6 @@ function is_int(val) {
   return (!isNaN(val)) && (parseFloat(val) === parseInt(val));
 }
 
-/* XXX This used to be used however now objects are used to create special types. Keeping for posterity.
-// Return the "meat" of a regex, or null if it is not a regex.
-function regex_of(val) {
-  return lib.typeOf(val) === 'regexp' ? val.toString().slice(1, -1) : null;
-}
-*/
-
 // Use object creation because I don't like object literal syntax to place functions in a namespace.
 var Encoder = function() {
   var self = this;
