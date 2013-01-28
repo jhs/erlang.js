@@ -1,6 +1,6 @@
 # erlang.js
 
-## Baisic Erlang and Node.js interoperability
+## Basic Erlang and Node.js interoperability
 
 Erlang.js is a simple JavaScript library to support the standard Erlang data encoding format (`term_to_binary`).
 
@@ -38,7 +38,7 @@ term_to_binary({a:"POST"}) // Encodes the atom 'POST'
 
 ### Binaries
 
-`{binary:"Foo"} encodes as Erlang `<<"Foo">>`. You can also use a shorthand, `{b:"Foo"}`
+`{binary:"Foo"}` encodes as Erlang `<<"Foo">>`. You can also use a shorthand, `{b:"Foo"}`.
 
 ```javascript
 term_to_binary({b:"POST"}) // Encodes the binary <<"POST">>
@@ -46,7 +46,7 @@ term_to_binary({b:"POST"}) // Encodes the binary <<"POST">>
 
 ### Tuples
 
-`{tuple:["foo", "bar"]} encodes as Erlang `{"foo", "bar"}`. You can also use a shorthand, `{t:["foo", "bar"]}`.
+`{tuple:["foo", "bar"]}` encodes as Erlang `{"foo", "bar"}`. You can also use a shorthand, `{t:["foo", "bar"]}`.
 
 ```javascript
 var foo = {a:"foo"} // an atom
@@ -82,12 +82,13 @@ To encode the optlist from the above Erlang example:
 ```javascript
 optlist_to_binary('set', 'public', ['keypos', 1], {write_concurrency:true}, 'compressed')
 
-/* Same as optlist_to_binary( { atom: 'set' }
-                            , { atom: 'public' }
-                            , { tuple: [ { atom: 'keypos' }, 1 ] }
-                            , { tuple: [ { atom: 'write_concurrency' }, true ] }
-                            , { atom: 'compressed' }
-                            )
+/* Same as
+term_to_binary([ { atom: 'set' }
+               , { atom: 'public' }
+               , { tuple: [ { atom: 'keypos' }, 1 ] }
+               , { tuple: [ { atom: 'write_concurrency' }, true ] }
+               , { atom: 'compressed' }
+               ])
 */
 ```
 
