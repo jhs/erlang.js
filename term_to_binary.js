@@ -1,135 +1,140 @@
 module.exports = term_to_binary
+module.exports.Encoder = Encoder
 module.exports.optlist_to_term = optlist_to_term
 module.exports.optlist_to_binary = optlist_to_binary
 
 var sys = require('sys')
 var lib = require('./lib.js')
 
-// Use object creation because I don't like object literal syntax to place functions in a namespace.
-var Encoder = function() {
-  var self = this;
-
-  this.encode = function(term) {
-    var encoder = this[lib.typeOf(term)];
-    if(!encoder)
-      throw new Error("Do not know how to encode " + lib.typeOf(term) + ': ' + sys.inspect(term));
-    return encoder.apply(self, [term]);
-  }
-
-  this.number = function(x) {
-    return is_int(x) ? this.int(x) : this.float(x);
-  }
-
-  this.int = function(x) {
-    if(x >= 0 && x < 256)
-      return [lib.tags.SMALL_INTEGER, x];
-    else if(lib.MIN_INTEGER <= x && x <= lib.MAX_INTEGER)
-      return [lib.tags.INTEGER, lib.uint32(x)];
-    else
-      throw new Error('Unknown integer: ' + x);
-  }
-
-  this.array = function(x) {
-    // Simple array encoding, without worrying about tagging.
-    var result = []
-      , encoded = [];
-
-    for(var a = 0; a < x.length; a++) {
-      var val = x[a];
-      if(!val)
-        // TODO: Warning: new Error("Bad array: " + sys.inspect(x));
-        continue;
-      encoded.push(self.encode(val));
-    }
-
-    if(encoded.length) {
-      result.push( lib.tags.LIST
-                 , lib.uint32(encoded.length)
-                 , encoded );
-    }
-
-    result.push(lib.tags.NIL);
-    return result;
-  }
-
-  this.object = function(x) {
-    if(Object.keys(x).length !== 1)
-      throw new Error("Don't know how to process: " + sys.inspect(x));
-
-    var tag = Object.keys(x)[0]
-    var val = x[tag];
-    var valType = lib.typeOf(val);
-
-    if((tag === 'binary' || tag === 'b') && valType === 'string')
-      // Encode the given string as a binary.
-      return self.encode(new Buffer(val, 'utf8'));
-
-    if((tag === 'atom' || tag === 'a') && valType === 'string')
-      // Encode the string as an atom.
-      return self.atom(val);
-
-    if((tag === 'tuple' || tag === 't') && valType === 'array')
-      // Encode the array as a tuple.
-      return self.tuple(val);
-
-    throw new Error("Unknown tag " + tag.toString() + " for value: " + sys.inspect(val));
-  }
-
-  this.atom = function(x) {
-    var bytes = new Buffer(x, 'utf8');
-    var result = [ lib.tags.ATOM
-                 , lib.uint16(bytes.length) ];
-    for(var a = 0; a < bytes.length; a++)
-      result.push(bytes[a]);
-    return result;
-  }
-
-  this.tuple = function(x) {
-    var result = [];
-    if(x.length < 256)
-      result.push(lib.tags.SMALL_TUPLE, x.length);
-    else
-      result.push(lib.tags.LARGE_TUPLE, lib.uint32(x.length));
-
-    result.push(x.map(function(e) { return self.encode(e) }));
-    return result;
-  }
-
-  this.buffer = function(x) {
-    var result = [lib.tags.BINARY];
-    result.push(lib.uint32(x.length));
-    for(var a = 0; a < x.length; a++)
-      result.push(x[a]);
-    return result;
-  }
-
-  this.string = function(x) {
-    var result = [];
-    result.push(lib.tags.STRING);
-
-    var bytes = new Buffer(x, 'utf8');
-    if(bytes.length != x.length) {
-      // TODO: Some kind of warning that this should probably be a binary since it is not only low-ASCII.
-    }
-
-    result.push(lib.uint16(bytes.length));
-    for(var a = 0; a < bytes.length; a++)
-      result.push(bytes[a]);
-
-    return result;
-  }
-
-  this.boolean = function(x) {
-    return self.atom(x ? "true" : "false");
-  }
+function Encoder () {
 }
 
-var encoder = new Encoder;
+Encoder.prototype.encode = function(term) {
+  var type = lib.typeOf(term)
+  var encoder = this[type]
+
+  if(!encoder)
+    throw new Error("Do not know how to encode " + lib.typeOf(term) + ': ' + sys.inspect(term))
+
+  return encoder.apply(this, [term])
+}
+
+Encoder.prototype.number = function(x) {
+  return is_int(x) ? this.int(x) : this.float(x)
+}
+
+Encoder.prototype.int = function(x) {
+  if(x >= 0 && x < 256)
+    return [lib.tags.SMALL_INTEGER, x]
+  else if(lib.MIN_INTEGER <= x && x <= lib.MAX_INTEGER)
+    return [lib.tags.INTEGER, lib.uint32(x)]
+  else
+    throw new Error('Unknown integer: ' + x)
+}
+
+Encoder.prototype.array = function(x) {
+  // Simple array encoding, without worrying about tagging.
+  var result = []
+  var encoded = []
+
+  for(var a = 0; a < x.length; a++) {
+    var val = x[a]
+    if(!val)
+      // TODO: Warning: new Error("Bad array: " + sys.inspect(x))
+      continue
+    encoded.push(this.encode(val))
+  }
+
+  if(encoded.length)
+    result.push( lib.tags.LIST
+               , lib.uint32(encoded.length)
+               , encoded )
+
+  result.push(lib.tags.NIL)
+  return result
+}
+
+Encoder.prototype.object = function(x) {
+  var keys = Object.keys(x)
+  if(keys.length !== 1)
+    throw new Error("Don't know how to process: " + sys.inspect(x))
+
+  var tag = keys[0]
+  var val = x[tag]
+  var valType = lib.typeOf(val)
+
+  if((tag === 'binary' || tag === 'b') && valType === 'string')
+    // Encode the given string as a binary.
+    return this.encode(new Buffer(val, 'utf8'))
+
+  if((tag === 'atom' || tag === 'a') && valType === 'string')
+    // Encode the string as an atom.
+    return this.atom(val)
+
+  if((tag === 'tuple' || tag === 't') && valType === 'array')
+    // Encode the array as a tuple.
+    return this.tuple(val)
+
+  throw new Error("Unknown tag " + tag.toString() + " for value: " + sys.inspect(val))
+}
+
+Encoder.prototype.atom = function(x) {
+  var bytes = new Buffer(x, 'utf8')
+  var result = [ lib.tags.ATOM
+               , lib.uint16(bytes.length) ]
+
+  for(var a = 0; a < bytes.length; a++)
+    result.push(bytes[a])
+
+  return result
+}
+
+Encoder.prototype.tuple = function(x) {
+  var result = []
+
+  if(x.length < 256)
+    result.push(lib.tags.SMALL_TUPLE, x.length)
+  else
+    result.push(lib.tags.LARGE_TUPLE, lib.uint32(x.length))
+
+  for (var i = 0; i < x.length; i++)
+    result.push(this.encode(x[i]))
+
+  return result
+}
+
+Encoder.prototype.buffer = function(x) {
+  var result = [lib.tags.BINARY]
+  result.push(lib.uint32(x.length))
+  for(var a = 0; a < x.length; a++)
+    result.push(x[a])
+  return result
+}
+
+Encoder.prototype.string = function(x) {
+  var result = [lib.tags.STRING]
+
+  var bytes = new Buffer(x, 'utf8')
+  if(bytes.length != x.length) {
+    // TODO: Some kind of warning that this should probably be a binary since it is not only low-ASCII.
+  }
+
+  result.push(lib.uint16(bytes.length))
+  for(var a = 0; a < bytes.length; a++)
+    result.push(bytes[a])
+
+  return result
+}
+
+Encoder.prototype.boolean = function(x) {
+  return this.atom(x ? "true" : "false")
+}
 
 function term_to_binary(term) {
-  var bytes = [lib.VERSION_MAGIC, encoder.encode(term)];
-  //console.log('bytes: %j', bytes);
-  return new Buffer(lib.flatten(bytes));
+  var encoder = new Encoder
+  var bytes = [lib.VERSION_MAGIC, encoder.encode(term)]
+  //console.log('bytes: %j', bytes)
+  return new Buffer(lib.flatten(bytes))
 }
 
 // Provide convenience to convert to Erlang opt lists: [{verbose, true}, quiet, etc]
@@ -140,55 +145,55 @@ function term_to_binary(term) {
 //
 // Booleans are converted to tuples too.
 function optlist_to_term (opts) {
-  var args = Array.prototype.slice.apply(arguments);
+  var args = Array.prototype.slice.apply(arguments)
   if(args.length > 1)
-    return optlist_to_term(args);
+    return optlist_to_term(args)
 
   if(typeOf(opts) !== 'array')
-    throw new Error("Cannot convert to OptList: " + sys.inspect(opts));
+    throw new Error("Cannot convert to OptList: " + sys.inspect(opts))
 
-  var looks_like_atom = /^[a-z][a-zA-Z0-9@\._]{0,254}$/;
+  var looks_like_atom = /^[a-z][a-zA-Z0-9@\._]{0,254}$/
 
   function to_atom(el, opts) {
-    var type = typeOf(el);
+    var type = typeOf(el)
 
     if(type === 'boolean')
-      return el;
+      return el
 
     if(type === 'string') {
       if(looks_like_atom.test(el))
-        return {'atom': el};
+        return {'atom': el}
       else if(opts && opts.identity)
-        return el;
-      throw new Error("Invalid atom: " + el);
+        return el
+      throw new Error("Invalid atom: " + el)
     }
 
     if(opts && opts.identity)
-      return el;
+      return el
 
-    throw new Error("Cannot convert to atom: " + sys.inspect(el));
+    throw new Error("Cannot convert to atom: " + sys.inspect(el))
   }
 
   function to_2_tuple(el) {
     return {'tuple': [ to_atom(el[0])
-                     , to_atom(el[1], {identity:true}) ] };
+                     , to_atom(el[1], {identity:true}) ] }
   }
 
   function element_to_opt(el) {
-    var type = typeOf(el);
+    var type = typeOf(el)
     if(type === 'string' || type === 'boolean') {
-      return to_atom(el);
+      return to_atom(el)
     } else if(type === 'array' && el.length === 2) {
-      return to_2_tuple(el);
+      return to_2_tuple(el)
     } else if(type === 'object' && Object.keys(el).length === 1) {
-      var key = Object.keys(el)[0];
-      return to_2_tuple([key, el[key]]);
+      var key = Object.keys(el)[0]
+      return to_2_tuple([key, el[key]])
     } else {
-      throw new Error("Invalid optlist element: " + sys.inspect(el));
+      throw new Error("Invalid optlist element: " + sys.inspect(el))
     }
   }
 
-  return opts.map(function(el) { return element_to_opt(el) });
+  return opts.map(function(el) { return element_to_opt(el) })
 }
 
 function optlist_to_binary() {
@@ -196,5 +201,5 @@ function optlist_to_binary() {
 }
 
 function is_int(val) {
-  return (!isNaN(val)) && (parseFloat(val) === parseInt(val));
+  return (!isNaN(val)) && (parseFloat(val) === parseInt(val))
 }

@@ -1,6 +1,7 @@
 exports.VERSION_MAGIC = 131;           // 131  83
 exports.MAX_INTEGER = (1 << 27) - 1;
 exports.MIN_INTEGER = -(1 << 27);
+exports.typeOf = typeOf
 
 exports.tags = { 'SMALL_INTEGER' : 'a' // 97   61
                , 'INTEGER'       : 'b' // 98   62
@@ -31,28 +32,27 @@ Object.keys(exports.tags).forEach(function(key) {
   exports.tags[key] = exports.tags[key].charCodeAt(0);
 })
 
+// Note: using Object.prototype.toString instead of instanceof because it's not working.
 function to_s(val) {
   return Object.prototype.toString.apply(val);
 }
 
-typeOf = exports.typeOf = function(value) {
-  var s = typeof value;
+function typeOf(value) {
+  if (Buffer.isBuffer(value))
+    return 'buffer'
 
-  // Note: using Object.prototype.toString instead of instanceof because it's not working.
-  if (s === 'object') {
-    if (value) {
-      if(to_s(value) === '[object Array]') {
-        s = 'array';
-      } else if(to_s(value) === '[object Buffer]') {
-        s = 'buffer';
-      }
-    } else {
-      s = 'null';
-    }
-  } else if(s === 'function' && to_s(value) === '[object RegExp]') {
-    return 'regexp';
-  }
-  return s;
+  if (Array.isArray(value))
+    return 'array'
+
+  var s = typeof value
+
+  if (s === 'object' && !value)
+    return 'null'
+
+  if(s === 'function' && to_s(value) === '[object RegExp]')
+    return 'regexp'
+
+  return s
 }
 
 flatten = exports.flatten = function (ar) {

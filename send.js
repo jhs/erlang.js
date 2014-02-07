@@ -20,7 +20,7 @@ var t = [                          // array
 // t = term_to_binary.optlist_to_term('extra_gravy', {cursing: false}, ['ip', {t:[127,0,0,1]}]);
 
 console.log("Sending: " + require('sys').inspect(t));
-var b = term_to_binary.term_to_binary(t);
+var b = term_to_binary(t);
 var fs = require('fs');
 fs.open('/tmp/out', 'w', 0644, function(er, fd) {
   if(er) throw er;
