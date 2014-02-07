@@ -1,7 +1,6 @@
 { "name": "erlang"
 , "version": "0.1.1"
-, "author": { "name": "Jason Smith"
-            , "email": "jhs@couchone.com" }
+, "author": { "name": "Jason Smith", "email": "jason.h.smith@gmail.com" }
 , "description": "Erlang interoperability with Javascript"
 , "homepage": "http://github.com/jhs/erlang.js"
 , "repository": { "type": "git"
