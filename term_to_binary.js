@@ -1,6 +1,10 @@
+exports.term_to_binary = term_to_binary
+exports.optlist_to_term = optlist_to_term
+exports.optlist_to_binary = optlist_to_binary
+
 var sys = require('sys')
-  , lib = require('./lib.js')
-  ;
+
+var lib = require('./lib.js')
 
 function is_int(val) {
   return (!isNaN(val)) && (parseFloat(val) === parseInt(val));
@@ -134,7 +138,7 @@ var Encoder = function() {
 
 var encoder = new Encoder;
 
-exports.term_to_binary = function(term) {
+function term_to_binary(term) {
   var bytes = [lib.VERSION_MAGIC, encoder.encode(term)];
   //console.log('bytes: %j', bytes);
   return new Buffer(lib.flatten(bytes));
@@ -147,7 +151,7 @@ exports.term_to_binary = function(term) {
 //    a string like #1, it is converted, otherwise left alone -> {two, tuple}
 //
 // Booleans are converted to tuples too.
-exports.optlist_to_term = optlist_to_term = function(opts) {
+function optlist_to_term (opts) {
   var args = Array.prototype.slice.apply(arguments);
   if(args.length > 1)
     return optlist_to_term(args);
@@ -199,6 +203,6 @@ exports.optlist_to_term = optlist_to_term = function(opts) {
   return opts.map(function(el) { return element_to_opt(el) });
 }
 
-exports.optlist_to_binary = function() {
-  return exports.term_to_binary(exports.optlist_to_term.apply(this, arguments));
+function optlist_to_binary() {
+  return term_to_binary(optlist_to_term.apply(this, arguments))
 }
