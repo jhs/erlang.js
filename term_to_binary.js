@@ -1,21 +1,9 @@
-exports.term_to_binary = term_to_binary
-exports.optlist_to_term = optlist_to_term
-exports.optlist_to_binary = optlist_to_binary
+module.exports = term_to_binary
+module.exports.optlist_to_term = optlist_to_term
+module.exports.optlist_to_binary = optlist_to_binary
 
 var sys = require('sys')
-
 var lib = require('./lib.js')
-
-function is_int(val) {
-  return (!isNaN(val)) && (parseFloat(val) === parseInt(val));
-}
-
-/* XXX This used to be used however now objects are used to create special types. Keeping for posterity.
-// Return the "meat" of a regex, or null if it is not a regex.
-function regex_of(val) {
-  return lib.typeOf(val) === 'regexp' ? val.toString().slice(1, -1) : null;
-}
-*/
 
 // Use object creation because I don't like object literal syntax to place functions in a namespace.
 var Encoder = function() {
@@ -205,4 +193,8 @@ function optlist_to_term (opts) {
 
 function optlist_to_binary() {
   return term_to_binary(optlist_to_term.apply(this, arguments))
+}
+
+function is_int(val) {
+  return (!isNaN(val)) && (parseFloat(val) === parseInt(val));
 }
