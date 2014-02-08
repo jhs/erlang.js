@@ -1,3 +1,7 @@
+var fs = require('fs')
+var util = require('util')
+var child_process = require('child_process')
+
 var term_to_binary = require('./term_to_binary');
 
 //require('sys').puts(exports.term_to_binary(5));
@@ -18,16 +22,65 @@ var t = [                          // array
         ];
 
 // t = term_to_binary.optlist_to_term('extra_gravy', {cursing: false}, ['ip', {t:[127,0,0,1]}]);
+function send(terms, callback) {
+  var cb = callback
+  callback = function() {
+    cb.apply(this, arguments)
+    cb = function() {}
+  }
 
-console.log("Sending: " + require('sys').inspect(t));
-var b = term_to_binary(t);
-var fs = require('fs');
-fs.open('/tmp/out', 'w', 0644, function(er, fd) {
-  if(er) throw er;
-  fs.write(fd, b, 0, b.length, null, function(er, bytes) {
-    if(er) throw er;
-    if(bytes != b.length)
-      throw new Error("Tried to write " + b.length + " but only wrote " + bytes);
-    console.log('Written');
+  var echo = child_process.spawn('escript', [__dirname + '/echo.escript'], {'stdio':'pipe'})
+
+  echo.on('error', function(er) {
+    console.log('Child error: %s', er.message)
+    callback(er)
   })
-})
+
+  echo.on('exit', function(code) {
+    console.log('Exit %j', code || 0)
+    callback(null, code || 0)
+  })
+
+  echo.on('disconnect', function(er) {
+    console.log('Disconnect')
+    callback(new Error('Disconnect'))
+  })
+
+  echo.on('close', function() {
+    console.log('Close')
+    callback(new Error('Close'))
+  })
+
+  var results = []
+  send_term()
+
+  function send_term() {
+    var term = terms.shift()
+    if (!term) {
+      console.log('Terms done: %j', results)
+      return callback(null, results)
+    }
+
+    console.log('Send term: %j', term)
+    var bin = term_to_binary(term)
+
+    echo.stdin.write(bin)
+    echo.stdin.write('\n')
+
+    echo.stdout.once('data', function(repr) {
+      console.log('  repr %s', util.inspect(repr))
+      echo.stdout.once('data', function(bin) {
+        console.log('  encd %s', util.inspect(bin))
+        results.push({'repr':repr, 'bin':bin})
+
+        send_term()
+      })
+    })
+  }
+}
+
+if (require.main === module)
+  main()
+
+console.error("Sending: " + require('sys').inspect(t));
+console.error('Written');
