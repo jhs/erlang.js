@@ -51,6 +51,9 @@ tap.test('Encoding', function(t) {
     send(pair.term, function(er, results) {
       t.equal(results.repr, pair.repr, 'Good representation: ' + pair.repr)
 
+      var encoded_term = term_to_binary(pair.term)
+      t.same(results.encoded, encoded_term, 'Binary encoding matches Erlang: ' + pair.repr)
+
       return to_async(null)
     })
   }
