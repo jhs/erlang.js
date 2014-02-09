@@ -29,15 +29,28 @@ function join_pairs(state, item, i, terms) {
   return state
 }
 
-tap.test('Erlang round-trip echo', function(t) {
-  t.plan(TERMS.length)
+tap.test('Erlang round-trip echo server', function(t) {
+  t.plan(3)
+
+  var term = 87
+  send(term, function(er, results) {
+    // Find the newline boundary
+    t.is(er, null, 'No problem sending and receiving a term')
+    t.ok(results.repr, 'Got a code representation of the term')
+    t.ok(results.encoded, 'Got a re-encoded term from Erlang')
+    t.end()
+  })
+})
+
+tap.test('Encoding', function(t) {
+  t.plan(TERMS.length * 2)
 
   async.eachSeries(TERMS, test_pair, pairs_tested)
 
   function test_pair(pair, to_async) {
     send(pair.term, function(er, results) {
-      // Find the newline boundary
       t.equal(results.repr, pair.repr, 'Good representation: ' + pair.repr)
+
       return to_async(null)
     })
   }
