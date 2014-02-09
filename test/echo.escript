@@ -4,22 +4,36 @@ main(_) -> ok
     , Port = list_to_integer(os:getenv("port"))
     , io:format(standard_error, "Listen :~w\n", [Port])
     , serve(Port)
+    , receive
+        {ok, die} -> ok
+            , io:format(standard_error, "Server done\n")
+        end
     .
 
 serve(Port) -> ok
     , case gen_tcp:listen(Port, [binary, {reuseaddr, true},
 			       {packet, 0}, {active, false}]) of
 	{ok, LSock} -> ok
-	    , serve(Port, LSock)
+	    , serve(Port, LSock, 5)
 	; Other -> ok
 	    , io:format(standard_error, "Can't listen to socket ~p~n", [Other])
         end
     .
 
+serve(_Port, _LSock, 0) -> ok
+    ;
+
+serve(Port, LSock, Remaining) -> ok
+    , spawn(fun() -> serve(Port, LSock) end)
+    , serve(Port, LSock, Remaining - 1)
+    .
+
 serve(Port, LSock) -> ok
     , case gen_tcp:accept(LSock)
         of {ok, Socket} -> ok
+            , io:format(standard_error, "Connect to :~w by ~w\n", [Port, self()])
             , echo(Socket)
+            , serve(Port, LSock)
 	; {error, Reason} -> ok
 	    , io:format(standard_error, "Can't accept socket ~p~n", [Reason])
             , serve(Port, LSock)
@@ -53,6 +67,13 @@ echo(Socket, Data, 0) -> ok
         catch error:badarg -> ok
             , throw({error, badarg})
         end
+    ;
+
+echo(Socket, Data, Remaining) -> ok
+    , {ok, Extra} = recv(Socket)
+    , New_data = <<Data/binary, Extra/binary>>
+    , New_remaining = Remaining - size(Extra)
+    , echo(Socket, New_data, New_remaining)
     .
 
 recv(Socket) -> ok
