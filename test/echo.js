@@ -8,7 +8,7 @@ var child_process = require('child_process')
 var term_to_binary = require('../term_to_binary');
 
 
-var ECHO = null
+var ECHO = {child:null, port:null, wait_timer:null}
 var THAI = '<<224,184,160,224,184,178,224,184,169,224,184,178,224,185,132,224,184,151,224,184,162>>'
 var TERMS =
   [ '["two","array"]'      , ['two', 'array']                     // Innocent 2-array
@@ -102,10 +102,9 @@ function send(term, callback) {
 }
 
 function with_server(callback) {
-  if (ECHO)
+  if (ECHO.child)
     return process.nextTick(callback)
 
-  ECHO = {}
   process.env.port = 1024 + Math.floor(Math.random() * 10000)
   ECHO.port = process.env.port
   ECHO.child = child_process.spawn('escript', [__dirname+'/echo.escript'], {'stdio':'ignore'})
