@@ -19,6 +19,10 @@ Encoder.prototype.encode = function(term) {
   return encoder.apply(this, [term])
 }
 
+Encoder.prototype.null = function(x) {
+  return this.atom('nil')
+}
+
 Encoder.prototype.number = function(x) {
   return is_int(x) ? this.int(x) : this.float(x)
 }
@@ -39,9 +43,9 @@ Encoder.prototype.array = function(x) {
 
   for(var a = 0; a < x.length; a++) {
     var val = x[a]
-    if(!val)
-      // TODO: Warning: new Error("Bad array: " + sys.inspect(x))
-      continue
+    //if(!val)
+    //  // TODO: Warning: new Error("Bad array: " + sys.inspect(x))
+    //  continue
     encoded.push(this.encode(val))
   }
 

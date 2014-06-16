@@ -5,7 +5,7 @@ var util = require('util')
 var async = require('async')
 var child_process = require('child_process')
 
-var term_to_binary = require('../term_to_binary');
+var API = require('../api.js')
 
 
 var ECHO = {child:null, port:null, wait_timer:null}
@@ -16,6 +16,7 @@ var TERMS =
   , 'foo'                  , {a:'foo'}                            // atom
   , "'GET'"                , {a:'GET'}
   , '[{jason,awesome}]'    , [ {t:[{a:'jason'}, {a:'awesome'}]} ]
+  , '[1,false,nil,2]'      , [1, false, null, 2]                  // list with falsy values inside
   , THAI                   , {b:'ภาษาไทย'}                        // binary
   , '[[[[23,"skidoo"]]]]'  , [[[[23, 'skidoo']]]]                 // nested objects
   , '123456'               , 123456                               // normal integer
@@ -48,11 +49,15 @@ tap.test('Encoding', function(t) {
   async.eachSeries(TERMS, test_pair, pairs_tested)
 
   function test_pair(pair, to_async) {
+    console.log('Send term: %s', pair.repr)
     send(pair.term, function(er, results) {
       t.equal(results.repr, pair.repr, 'Good representation: ' + pair.repr)
 
-      var encoded_term = term_to_binary(pair.term)
+      var encoded_term = API.term_to_binary(pair.term)
       t.same(results.encoded, encoded_term, 'Binary encoding matches Erlang: ' + pair.repr)
+
+      var decoded_term = API.binary_to_term(results.encoded)
+      t.deepEqual(decoded_term, pair.term, 'Decode matches original: ' + pair.repr)
 
       return to_async(null)
     })
@@ -73,14 +78,13 @@ function send(term, callback) {
   with_server(function() {
     var response = []
 
-    console.log('Echo to :%d', ECHO.port)
     var client = net.connect({'port':ECHO.port}, on_connect)
     client.on('data', on_data)
     client.on('end', on_end)
 
     function on_connect() {
       // Send the term.
-      var bin = term_to_binary(term)
+      var bin = API.term_to_binary(term)
       var length = new Buffer(4)
       length.writeUInt32BE(bin.length, 0)
 
@@ -89,7 +93,6 @@ function send(term, callback) {
     }
 
     function on_data(chunk) {
-      console.log('data chunk %j', chunk)
       response.push(chunk)
     }
 
@@ -124,6 +127,13 @@ function with_server(callback) {
   process.env.port = 1024 + Math.floor(Math.random() * 10000)
   ECHO.port = process.env.port
   ECHO.child = child_process.spawn('escript', [__dirname+'/echo.escript'], {'stdio':'ignore'})
+
+  ECHO.child.on('error', function(er) {
+    if(er.errno == 'ENOENT')
+      console.error('Could not run escript. Is `escript` in your $PATH?')
+
+    callback(er)
+  })
 
   ECHO.child.on('close', function(code) {
     console.log('Echo child closed')
