@@ -6,7 +6,9 @@
 , "repository": { "type": "git"
                 , "url": "git://github.com/jhs/erlang.js" }
 , "engines": [ "node" ]
-, "main": "./term_to_binary.js"
+, "main": "./api.js"
+, "scripts": { "test" : "tap test/"
+             }
 
 , "devDependencies": { "tap": "~0.4.8"
                      , "async": "~0.2.10"
