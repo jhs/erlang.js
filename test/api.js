@@ -23,5 +23,6 @@ test('Erlang API', function(t) {
   t.equal(typeof api.optlist_to_term, 'function', 'API optlist_to_term')
   t.equal(typeof api.optlist_to_binary, 'function', 'API optlist_to_binary')
   t.equal(typeof api.term_to_binary.Encoder, 'function', 'Encoder constructor')
+  t.equal(typeof api.binary_to_term.Decoder, 'function', 'Decoder constructor')
   t.end()
 })
