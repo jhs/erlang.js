@@ -16,7 +16,9 @@ module.exports.Decoder = Decoder
 //module.exports.term_to_optlist = term_to_optlist
 //module.exports.binary_to_optlist = binary_to_optlist
 
-var sys = require('sys')
+var EE = require('events').EventEmitter
+var util = require('util')
+
 var lib = require('./lib.js')
 
 function binary_to_term(term) {
@@ -35,7 +37,10 @@ function binary_to_term(term) {
   return decoded
 }
 
+util.inherits(Decoder, EE)
 function Decoder (bin) {
+  EE.call(this)
+
   this.bin = bin || new Buffer([])
 }
 
@@ -79,7 +84,7 @@ Decoder.prototype.STRING = function() {
 }
 
 Decoder.prototype.ATOM = function() {
-  console.log('ATOM %j', this.bin)
+  this.emit('log', 'ATOM %j', this.bin)
   var start = 1 + 2 // The string tag and the length part
   var length = this.bin.readUInt16BE(1)
   var term = this.bin.slice(start, start + length).toString('utf8')
@@ -90,7 +95,7 @@ Decoder.prototype.ATOM = function() {
 
 Decoder.prototype.LIST = function() {
   var length = this.bin.readUInt32BE(1)
-  console.log('LIST[%d] %j', length, this.bin)
+  this.emit('log', 'LIST[%d] %j', length, this.bin)
   var term = new Array(length)
 
   var body = new Decoder(this.bin.slice(5))
@@ -123,7 +128,7 @@ Decoder.prototype.SMALL_TUPLE = function() {
   // The body's remainder is the new position in the decoding sequence.
   this.bin = body.bin
 
-  console.log('Small tuple %j', this.bin)
+  this.emit('log', 'Small tuple %j', this.bin)
   console.dir(term)
   return term
 }
@@ -133,7 +138,7 @@ if(require.main === module) {
   var source = [1, 12, 13]
   var bin = ttb(source)
   var term = binary_to_term(bin)
-  console.log('binary_to_term(%j) -> %j', bin, term)
+  this.emit('log', 'binary_to_term(%j) -> %j', bin, term)
 }
 
 //function Decoder () {}
