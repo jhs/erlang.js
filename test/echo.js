@@ -117,7 +117,7 @@ function send(term, callback) {
       var repr, encoded
       for (var i = 0; i < response.length; i++)
         if(response[i] == 13 && response[i+1] == 10) {
-          repr = response.slice(0, i).toString('utf8').replace(/\r?\n\s*/g, '')
+          repr = response.slice(0, i).toString('utf8') //.replace(/\r?\n\s*/g, '')
           encoded = response.slice(i+2)
           break
         }

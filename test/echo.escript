@@ -69,7 +69,7 @@ echo(Socket, Data, 0) -> ok
     , try binary_to_term(Data)
         of Term -> ok
             %, io:format(standard_error, "Got a term: ~w\n", [Term])
-            , Repr = io_lib:format("~p\r\n", [Term])
+            , Repr = io_lib:format("~9999p\r\n", [Term])
             , Encoded = term_to_binary(Term)
             , gen_tcp:send(Socket, Repr)
             , gen_tcp:send(Socket, [Encoded])
