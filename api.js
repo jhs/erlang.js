@@ -10,5 +10,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-exports.term_to_binary = require('./encode.js')
-exports.binary_to_term = require('./decode.js')
+var encode = require('./encode.js')
+var decode = require('./decode.js')
+
+module.exports =
+  { term_to_binary   : encode
+  , optlist_to_term  : encode.optlist_to_term
+  , optlist_to_binary: encode.optlist_to_binary
+
+  , binary_to_term   : decode
+  }
