@@ -29,7 +29,8 @@ var TERMS =
   , "'GET'"                , {a:'GET'}
   , '[{jason,awesome}]'    , [ {t:[{a:'jason'}, {a:'awesome'}]} ]
   , '[1,false,nil,2]'      , [1, false, null, 2]                  // list with falsy values inside
-  , THAI                   , {b:'ภาษาไทย'}                        // binary
+  , THAI                   , new Buffer('ภาษาไทย', 'utf8')        // binary
+  // TODO: Test the {b:"a binary"} syntax.
   , '[[[[23,"skidoo"]]]]'  , [[[[23, 'skidoo']]]]                 // nested objects
   , '123456'               , 123456                               // normal integer
   , '{"tuple",here,too}'   , {t:['tuple', {a:'here'}, {a:'too'}]} //tuple
@@ -56,13 +57,16 @@ tap.test('Erlang round-trip echo server', function(t) {
 })
 
 tap.test('Encoding', function(t) {
-  t.plan(TERMS.length * 2)
+  t.plan(TERMS.length * 3)
 
   async.eachSeries(TERMS, test_pair, pairs_tested)
 
   function test_pair(pair, to_async) {
-    console.log('Send term: %s', pair.repr)
+    console.log('Send term: %s want %j', pair.repr, pair.term)
     send(pair.term, function(er, results) {
+      if (er)
+        return to_async(er)
+
       t.equal(results.repr, pair.repr, 'Good representation: ' + pair.repr)
 
       var encoded_term = API.term_to_binary(pair.term)

@@ -16,8 +16,8 @@ module.exports.Decoder = Decoder
 //module.exports.term_to_optlist = term_to_optlist
 //module.exports.binary_to_optlist = binary_to_optlist
 
-var EE = require('events').EventEmitter
 var util = require('util')
+var debug = require('debug')('erlang:decode')
 
 var lib = require('./lib.js')
 
@@ -37,10 +37,7 @@ function binary_to_term(term) {
   return decoded
 }
 
-util.inherits(Decoder, EE)
 function Decoder (bin) {
-  EE.call(this)
-
   this.bin = bin || new Buffer([])
 }
 
@@ -62,40 +59,53 @@ Decoder.prototype.decode = function() {
 
 Decoder.prototype.SMALL_INTEGER = function() {
   var term = this.bin.readUInt8(1)
+  debug('SMALL_INTEGER: %d', term)
   this.bin = this.bin.slice(2)
   return term
 }
 
 Decoder.prototype.INTEGER = function() {
-  var term = this.bin.readUInt32BE(this.bin[0])
-//  else if(lib.MIN_INTEGER <= x && x <= lib.MAX_INTEGER)
-//    return [lib.tags.INTEGER, lib.uint32(x)]
-  this.bin = this.bin.slice(4)
+  debug('INTEGER')
+  var term = this.bin.readUInt32BE(1)
+  this.bin = this.bin.slice(5) // One byte for the tag, four for the 32-bit number.
   return term
 }
 
 Decoder.prototype.STRING = function() {
   var start = 1 + 2 // The string tag and the length part
   var length = this.bin.readUInt16BE(1)
-  var term = this.bin.slice(start, start + length).toJSON()
+  debug('STRING[%j]', length)
 
+  var term = this.bin.slice(start, start + length).toString('utf8')
   this.bin = this.bin.slice(start + length)
+
   return term
 }
 
 Decoder.prototype.ATOM = function() {
-  this.emit('log', 'ATOM %j', this.bin)
+  debug('ATOM %j', this.bin)
   var start = 1 + 2 // The string tag and the length part
   var length = this.bin.readUInt16BE(1)
-  var term = this.bin.slice(start, start + length).toString('utf8')
+  var end = start + length
 
-  this.bin = this.bin.slice(start + length)
+  var term = this.bin.slice(start, end).toString('utf8')
+  if (term == 'false')
+    term = false
+  else if (term == 'true')
+    term = true
+  else if (term == 'nil')
+    term = null
+  else
+    term = {a:term}
+
+  this.bin = this.bin.slice(end)
+
   return term
 }
 
 Decoder.prototype.LIST = function() {
   var length = this.bin.readUInt32BE(1)
-  this.emit('log', 'LIST[%d] %j', length, this.bin)
+  debug('LIST[%d] %j', length, this.bin)
   var term = new Array(length)
 
   var body = new Decoder(this.bin.slice(5))
@@ -128,8 +138,20 @@ Decoder.prototype.SMALL_TUPLE = function() {
   // The body's remainder is the new position in the decoding sequence.
   this.bin = body.bin
 
-  this.emit('log', 'Small tuple %j', this.bin)
-  console.dir(term)
+  debug('Small tuple %j', this.bin)
+  return {t:term}
+}
+
+Decoder.prototype.BINARY = function() {
+  var length = this.bin.readUInt32BE(1)
+  var start = 1 + 4 // The tag byte, plus four size bytes
+  var end = start + length
+
+  debug('BINARY[%j]', length)
+
+  var term = this.bin.slice(start, end)
+  this.bin = this.bin.slice(end)
+
   return term
 }
 
