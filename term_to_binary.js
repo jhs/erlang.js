@@ -100,10 +100,13 @@ var Encoder = function() {
   }
 
   self.pid = function(x) {
-    var result = [];
-    result.push(lib.tags.PID);
-    result.push(x.map(function(e) { return self.encode(e) }));
-    return result;
+    return [
+      lib.tags.PID,
+      self.encode(x.node),
+      lib.uint32(x.id),
+      lib.uint32(x.serial),
+      x.creation
+    ];
   }
 
   self.buffer = function(x) {
