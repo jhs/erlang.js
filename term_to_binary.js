@@ -73,7 +73,7 @@ var Encoder = function() {
       // Encode the array as a tuple.
       return self.tuple(val);
 
-    if((tag === 'pid' || tag === 'p') && valType === 'array')
+    if((tag === 'pid' || tag === 'p') && valType === 'object')
       return self.pid(val);
 
     throw new Error("Unknown tag " + tag.toString() + " for value: " + sys.inspect(val));
