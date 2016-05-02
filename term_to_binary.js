@@ -17,6 +17,10 @@ var Encoder = function() {
     return encoder.apply(self, [term]);
   }
 
+  self.null = function() {
+    return [lib.tags.NIL]
+  }
+
   self.number = function(x) {
     return is_int(x) ? self.int(x) : self.float(x);
   }
