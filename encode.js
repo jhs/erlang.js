@@ -16,7 +16,7 @@ module.exports.optlist_to_binary = optlist_to_binary
 // limitations under the License.
 
 
-var sys = require('sys')
+var util = require('util')
 var lib = require('./lib.js')
 
 function Encoder () {
@@ -27,7 +27,7 @@ Encoder.prototype.encode = function(term) {
   var encoder = this[type]
 
   if(!encoder)
-    throw new Error("Do not know how to encode " + lib.typeOf(term) + ': ' + sys.inspect(term))
+    throw new Error("Do not know how to encode " + lib.typeOf(term) + ': ' + util.inspect(term))
 
   return encoder.apply(this, [term])
 }
@@ -57,7 +57,7 @@ Encoder.prototype.array = function(x) {
   for(var a = 0; a < x.length; a++) {
     var val = x[a]
     //if(!val)
-    //  // TODO: Warning: new Error("Bad array: " + sys.inspect(x))
+    //  // TODO: Warning: new Error("Bad array: " + util.inspect(x))
     //  continue
     encoded.push(this.encode(val))
   }
@@ -74,7 +74,7 @@ Encoder.prototype.array = function(x) {
 Encoder.prototype.object = function(x) {
   var keys = Object.keys(x)
   if(keys.length !== 1)
-    throw new Error("Don't know how to process: " + sys.inspect(x))
+    throw new Error("Don't know how to process: " + util.inspect(x))
 
   var tag = keys[0]
   var val = x[tag]
@@ -92,7 +92,7 @@ Encoder.prototype.object = function(x) {
     // Encode the array as a tuple.
     return this.tuple(val)
 
-  throw new Error("Unknown tag " + tag.toString() + " for value: " + sys.inspect(val))
+  throw new Error("Unknown tag " + tag.toString() + " for value: " + util.inspect(val))
 }
 
 Encoder.prototype.atom = function(x) {
@@ -167,7 +167,7 @@ function optlist_to_term (opts) {
     return optlist_to_term(args)
 
   if(typeOf(opts) !== 'array')
-    throw new Error("Cannot convert to OptList: " + sys.inspect(opts))
+    throw new Error("Cannot convert to OptList: " + util.inspect(opts))
 
   var looks_like_atom = /^[a-z][a-zA-Z0-9@\._]{0,254}$/
 
@@ -188,7 +188,7 @@ function optlist_to_term (opts) {
     if(opts && opts.identity)
       return el
 
-    throw new Error("Cannot convert to atom: " + sys.inspect(el))
+    throw new Error("Cannot convert to atom: " + util.inspect(el))
   }
 
   function to_2_tuple(el) {
@@ -206,7 +206,7 @@ function optlist_to_term (opts) {
       var key = Object.keys(el)[0]
       return to_2_tuple([key, el[key]])
     } else {
-      throw new Error("Invalid optlist element: " + sys.inspect(el))
+      throw new Error("Invalid optlist element: " + util.inspect(el))
     }
   }
 
