@@ -73,7 +73,9 @@ function typeOf(value) {
 
 function flatten(ar) {
   return ar.reduce(function(state, elem) {
-    return state.concat(typeOf(elem) === 'array' ? flatten(elem) : [elem]);
+    return typeOf(elem) === 'array'
+            ? state.concat(flatten(elem))
+            : state.concat([elem])
   }, [])
 }
 
@@ -81,10 +83,10 @@ exports.uint32 = function(n) {
   return [ n >> 24 & 0xff
          , n >> 16 & 0xff
          , n >>  8 & 0xff
-         , n >>  0 & 0xff ];
+         , n >>  0 & 0xff ]
 }
 
 exports.uint16 = function(n) {
   return [ n >> 16 & 0xff
-         , n >>  0 & 0xff ];
+         , n >>  0 & 0xff ]
 }
