@@ -100,4 +100,3 @@ See the [Apache 2.0 license](named/blob/master/LICENSE).
 
 [tap]: https://github.com/isaacs/node-tap
 [def]: https://github.com/iriscouch/defaultable
->>>>>>> ic/master
