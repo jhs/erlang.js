@@ -48,12 +48,27 @@ test('Large tuple codec', (t) => {
   tuple_size = bin.readUInt32BE(2)
   t.equal(tuple_size, 256, 'Tuple size is 256 as decoded from the buffer')
 
+  var dec = api.binary_to_term(bin)
+  t.equal(dec.t.length, 256, 'Decoded tuple has the correct element count')
+  for (var i = 0; i < 256; i++)
+    t.equal(dec.t[i].toString(), `tuple element ${i}`, 'Large tuple element is in the right position: ' + i)
+
   t.end()
 })
 
-function mk_tuple(size) {
+test('Very large tuple', (t) => {
+  var size = 10000
+
+  var tuple = mk_tuple(size, {a:'foo'})
+  var bin = api.term_to_binary(tuple)
+  var dec = api.binary_to_term(bin)
+  t.same(dec, tuple, `Round-trip through a large tuple (${size} elements) works`)
+  t.end()
+})
+
+function mk_tuple(size, fill) {
   var result = []
   for (var i = 0; i < size; i++)
-    result.push(new Buffer('tuple element ' + i))
+    result.push(fill || new Buffer('tuple element ' + i))
   return {t: result}
 }

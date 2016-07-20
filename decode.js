@@ -120,6 +120,7 @@ Decoder.prototype.LIST = function() {
   return term
 }
 
+Decoder.prototype.LARGE_TUPLE =
 Decoder.prototype.SMALL_TUPLE = function() {
   var tag = this.bin[0]
   if (tag === lib.tags.SMALL_TUPLE) {
@@ -127,7 +128,7 @@ Decoder.prototype.SMALL_TUPLE = function() {
     var body = new Decoder(this.bin.slice(2))
   } else if (tag === lib.tags.LARGE_TUPLE) {
     var length = this.bin.readUInt32BE(1)
-    var body = new Decoder(this.bin.slice(3))
+    var body = new Decoder(this.bin.slice(5))
   } else
     throw new Error('Unknown tuple tag: ' + tag)
 
