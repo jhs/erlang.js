@@ -180,7 +180,7 @@ function optlist_to_term (opts) {
 
     if(type === 'string') {
       if(looks_like_atom.test(el))
-        return {'atom': el}
+        return {'a': el}
       else if(opts && opts.identity)
         return el
       throw new Error("Invalid atom: " + el)
@@ -193,8 +193,8 @@ function optlist_to_term (opts) {
   }
 
   function to_2_tuple(el) {
-    return {'tuple': [ to_atom(el[0])
-                     , to_atom(el[1], {identity:true}) ] }
+    return {'t': [ to_atom(el[0])
+                 , to_atom(el[1], {identity:true}) ] }
   }
 
   function element_to_opt(el) {
