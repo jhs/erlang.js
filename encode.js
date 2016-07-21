@@ -18,16 +18,17 @@ module.exports.optlist_to_binary = optlist_to_binary
 
 var util = require('util')
 var lib = require('./lib.js')
+var typeOf = lib.typeOf
 
 function Encoder () {
 }
 
 Encoder.prototype.encode = function(term) {
-  var type = lib.typeOf(term)
+  var type = typeOf(term)
   var encoder = this[type]
 
   if(!encoder)
-    throw new Error("Do not know how to encode " + lib.typeOf(term) + ': ' + util.inspect(term))
+    throw new Error("Do not know how to encode " + typeOf(term) + ': ' + util.inspect(term))
 
   return encoder.apply(this, [term])
 }
@@ -78,7 +79,7 @@ Encoder.prototype.object = function(x) {
 
   var tag = keys[0]
   var val = x[tag]
-  var valType = lib.typeOf(val)
+  var valType = typeOf(val)
 
   if((tag === 'binary' || tag === 'b') && valType === 'string')
     // Encode the given string as a binary.
