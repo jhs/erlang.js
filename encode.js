@@ -33,6 +33,10 @@ Encoder.prototype.encode = function(term) {
   return encoder.apply(this, [term])
 }
 
+Encoder.prototype.undefined = function(x) {
+    return this.atom('undefined')
+}
+
 Encoder.prototype.null = function(x) {
   return this.atom('nil')
 }

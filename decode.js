@@ -95,6 +95,8 @@ Decoder.prototype.ATOM = function() {
     term = true
   else if (term == 'nil')
     term = null
+  else if (term == 'undefined')
+    term = undefined
   else
     term = {a:term}
 
