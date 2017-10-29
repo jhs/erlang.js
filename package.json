@@ -2,9 +2,9 @@
 , "version": "1.0.1"
 , "author": { "name": "Jason Smith", "email": "jason.h.smith@gmail.com" }
 , "description": "Erlang interoperability with Javascript"
-, "homepage": "http://github.com/iriscouch/erlang.js"
+, "homepage": "http://github.com/jhs/erlang.js"
 , "repository": { "type": "git"
-                , "url": "git://github.com/iriscouch/erlang.js" }
+                , "url": "git://github.com/jhs/erlang.js" }
 , "engines": [ "node" ]
 , "main": "./api.js"
 , "scripts": { "test" : "tap test/"
