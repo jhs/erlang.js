@@ -28,13 +28,13 @@ declare class Encoder {
 }
 
 interface encode {
-    (term): Buffer;
+    (term: any): Buffer;
 
     Encoder: Encoder;
 
-    optlist_to_term(opts): any[];
+    optlist_to_term(opts: any[]): any[];
 
-    optlist_to_binary(opts): Buffer;
+    optlist_to_binary(opts: any[]): Buffer;
 }
 
 declare class Decoder {
@@ -60,7 +60,7 @@ declare class Decoder {
 }
 
 interface decode {
-    (term): any;
+    (term: Buffer): any;
 
     Decoder: Decoder
 }
@@ -75,15 +75,19 @@ declare let encode: encode;
 declare let decode: decode;
 declare let iolist: iolist;
 
-export default {
-    term_to_binary: encode
-    , optlist_to_term: encode.optlist_to_term
-    , optlist_to_binary: encode.optlist_to_binary
+export function term_to_binary(term: any): Buffer;
 
-    , binary_to_term: decode
+export function optlist_to_term(opts: any[]): any[];
 
-    , iolist_to_binary: iolist.to_buffer
-    , iolist_to_buffer: iolist.to_buffer
-    , iolist_size: iolist.size
-}
+export function optlist_to_binary(opts: any[]): Buffer;
+
+
+export function binary_to_term(term: Buffer): any;
+
+
+export function iolist_to_binary(list): Buffer;
+
+export function iolist_to_buffer(list): Buffer;
+
+export function iolist_size(list): number;
 
