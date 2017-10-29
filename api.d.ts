@@ -1,7 +1,7 @@
 type Buffer = Uint8Array | ArrayBuffer;
 type ByteArray = any[]
 
-class Encoder {
+declare class Encoder {
     encode(term): ByteArray;
 
     undefined(x): ByteArray;
@@ -37,7 +37,7 @@ interface encode {
     optlist_to_binary(opts): Buffer;
 }
 
-class Decoder {
+declare class Decoder {
     constructor(bin: ArrayBuffer)
 
     decode(): any;

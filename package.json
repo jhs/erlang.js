@@ -17,15 +17,18 @@
   "main": "./api.js",
   "types": "./api.d.ts",
   "scripts": {
-    "test": "tap test/"
+    "lint": "tslint -p .",
+    "test": "npm run lint && tap test/"
   },
   "dependencies": {
     "debug": "~1.0.4"
   },
   "devDependencies": {
-    "tap": "~0.4.8",
     "async": "~0.2.10",
-    "traceback": "~0.3.1"
+    "tap": "~0.4.8",
+    "traceback": "~0.3.1",
+    "tslint": "^5.8.0",
+    "typescript": "^2.5.3"
   },
   "directories": {
     "test": "test"
