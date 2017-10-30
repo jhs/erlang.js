@@ -3,8 +3,10 @@
 .idea/
 yarn.lock
 
+object.d.ts
 object.js
 object.js.map
 
+async.d.ts
 async.js
 async.js.map

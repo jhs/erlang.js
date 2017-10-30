@@ -5,13 +5,7 @@ import * as util from "util";
 export type format = "tagged_optlist" | "optlist" | "list" ;
 const default_format: format = "tagged_optlist";
 
-const map_object = x => {
-  return typeof x === "object" && x !== null && !Array.isArray(x)
-    ? object_to_optlist(x)
-    : Array.isArray(x)
-      ? x.map(x => map_object(x))
-      : x;
-};
+const isTuple = t => !!t && (Array.isArray(t.t) || Array.isArray(t.tuple));
 
 export function getTupleArray(term): any[] {
   if (!term) {
@@ -25,6 +19,36 @@ export function getTupleArray(term): any[] {
 }
 
 /**
+ * @param x: Javascript term
+ * @param format: type format
+ * */
+const map_object = (x, format) => {
+  return typeof x === "object" && x !== null && !Array.isArray(x)
+    ? object_to_optlist(x)
+    : Array.isArray(x)
+      ? x.map(x => map_object(x, format))
+      : x;
+};
+
+/**
+ * @param x: Erlang term
+ * @param format: type format
+ * */
+const map_list = (x, format) => {
+  if (isTuple(x)) {
+    const t = x.t || x.tuple;
+    if (t.length === 2 && t[0] === map_list_tag) {
+      return optlist_to_object(t[1], format);
+    }
+    return {t: map_list(t, format)};
+  }
+  if (Array.isArray(x)) {
+    return x.map(x => map_list(x, format));
+  }
+  return x;
+};
+
+/**
  * object -> optlist
  * */
 export function object_to_optlist(o: any, format: format = default_format): any {
@@ -32,7 +56,7 @@ export function object_to_optlist(o: any, format: format = default_format): any 
     case "tagged_optlist":
     case "optlist": {
       const vs = Object.keys(o)
-        .map(x => ({t: [x, map_object(o[x])]}));
+        .map(x => ({t: [x, map_object(o[x], format)]}));
       return format === "tagged_optlist"
         ? {t: [map_optlist_tag, vs]}
         : vs;
@@ -40,7 +64,7 @@ export function object_to_optlist(o: any, format: format = default_format): any 
     case "list": {
       const vs = [];
       Object.keys(o)
-        .forEach(x => vs.push(x, o[x]));
+        .forEach(x => vs.push(x, map_object(o[x], format)));
       return {t: [map_list_tag, vs]};
     }
     default:
@@ -70,7 +94,7 @@ export function optlist_to_object(term: [any, any], format: format = default_for
         if (xs.length !== 2) {
           throw new Error("tuple should be size of 2: " + util.inspect(tuple));
         }
-        o[xs[0]] = xs[1];
+        o[xs[0]] = map_list(xs[1], format);
       });
       return o;
     }
@@ -80,7 +104,7 @@ export function optlist_to_object(term: [any, any], format: format = default_for
         throw new Error("invalid list, should be even number of element: " + util.inspect(term));
       }
       for (let i = 0; i < term.length; i += 2) {
-        o[term[i]] = term[i + 1];
+        o[term[i]] = map_list(term[i + 1], format);
       }
       return o;
     }
