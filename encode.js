@@ -18,7 +18,7 @@ module.exports.optlist_to_binary = optlist_to_binary
 
 var util = require('util')
 var lib = require('./lib.js')
-var utils = require('./utils.js')
+var object = require('./object.js')
 var typeOf = lib.typeOf
 
 function Encoder () {
@@ -81,7 +81,7 @@ Encoder.prototype.object = function(x) {
   var keys = Object.keys(x)
   if(keys.length !== 1){
     // throw new Error("Don't know how to process: " + util.inspect(x))
-    var res = utils.object_to_optlist(x);
+    var res = object.object_to_optlist(x);
     return this.encode(res);
   }
 

@@ -16,11 +16,10 @@ module.exports.Decoder = Decoder
 //module.exports.term_to_optlist = term_to_optlist
 //module.exports.binary_to_optlist = binary_to_optlist
 
-var util = require('util')
 var debug = require('debug')('erlang:decode')
 
 var lib = require('./lib.js')
-var utils = require('./utils.js')
+var object = require('./object.js')
 
 function binary_to_term(term) {
   if (!Buffer.isBuffer(term))
@@ -143,8 +142,8 @@ Decoder.prototype.SMALL_TUPLE = function() {
   this.bin = body.bin
 
   debug('Small tuple %j', this.bin)
-  if (term[0] === utils.map_optlist_tag) {
-    return utils.optlist_to_object(term);
+  if (term[0] === object.map_optlist_tag) {
+    return object.optlist_to_object(term);
   }
   return {t:term}
 }
