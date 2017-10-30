@@ -18,12 +18,13 @@
   "types": "./api.d.ts",
   "scripts": {
     "lint": "tslint -p .",
-    "build": "tsc object.ts",
+    "build": "tsc",
     "pretest": "npm run build",
     "prepublishOnly": "npm test",
     "test": "npm run lint && tap test/"
   },
   "dependencies": {
+    "arraybuffer-to-buffer": "^0.0.4",
     "debug": "~1.0.4",
     "util": "^0.10.3"
   },

@@ -1,8 +1,7 @@
 {
   "compilerOptions": {
-    "allowJs": true,
     "allowSyntheticDefaultImports": true,
-    "declaration": false,
+    "declaration": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "noImplicitThis": true,
@@ -11,14 +10,13 @@
       "dom",
       "es2015"
     ],
-    "module": "es2015",
     "moduleResolution": "node",
-    "sourceMap": true,
-    "target": "es5",
-    "outDir": "build"
+    "sourceMap": true
   },
   "include": [
-    "api.d.ts"
+    "api.d.ts",
+    "object.ts",
+    "async.ts"
   ],
   "exclude": [
     "node_modules"
