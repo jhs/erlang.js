@@ -18,20 +18,27 @@
   "types": "./api.d.ts",
   "scripts": {
     "lint": "tslint -p .",
-    "build": "tsc utils.ts",
+    "build": "tsc object.ts",
     "pretest": "npm run build",
     "prepublishOnly": "npm test",
     "test": "npm run lint && tap test/"
   },
   "dependencies": {
-    "debug": "~1.0.4"
+    "debug": "~1.0.4",
+    "util": "^0.10.3"
   },
   "devDependencies": {
+    "@angular/compiler": ">=4.0.0-beta",
+    "@angular/core": ">=4.0.0-beta",
     "async": "~0.2.10",
+    "codelyzer": "^3.2.2",
+    "rxjs": "^5.0.1",
     "tap": "~0.4.8",
     "traceback": "~0.3.1",
     "tslint": "^5.8.0",
-    "typescript": "^2.5.3"
+    "tslint-eslint-rules": "^4.1.1",
+    "typescript": "^2.5.3",
+    "zone.js": "^0.8.4"
   },
   "directories": {
     "test": "test"

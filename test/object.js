@@ -31,15 +31,21 @@ test('Simple object codec', function(t) {
   t.end()
 })
 
-test('Deep object codec', function(t) {
-  var o = {username:'user',password:'123', logs:[{time:123}, {time:234}]};
+var o = {username:'user',password:'123', logs:[{time:123}, {time:234}]};
 
-  var bin = api.term_to_binary(o)
-  t.equal(bin[0], lib.VERSION_MAGIC, 'Encoded tuple begins with the magic number')
-  t.equal(bin[1], lib.tags.SMALL_TUPLE, 'Object is encoded as a SMALL_TUPLE')
+function test_deep_object(format){
+ test(`Deep object codec (${format})`, function(t){
+   var bin = api.term_to_binary(o, format)
+   t.equal(bin[0], lib.VERSION_MAGIC, 'Encoded tuple begins with the magic number')
+   t.equal(bin[1], lib.tags.SMALL_TUPLE, 'Object is encoded as a SMALL_TUPLE')
 
-  var dec = api.binary_to_term(bin)
-  t.equal(JSON.stringify(o), JSON.stringify(dec), 'Decoded is same as original data')
+   var dec = api.binary_to_term(bin, format)
+   t.equal(JSON.stringify(o), JSON.stringify(dec), 'Decoded is same as original data')
 
-  t.end()
-})
+   t.end()
+ })
+}
+
+test_deep_object("map_optlist");
+test_deep_object("map_list");
+test_deep_object("util");
