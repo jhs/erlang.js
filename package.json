@@ -18,6 +18,9 @@
   "types": "./api.d.ts",
   "scripts": {
     "lint": "tslint -p .",
+    "build": "tsc utils.ts",
+    "pretest": "npm run build",
+    "prepublishOnly": "npm test",
     "test": "npm run lint && tap test/"
   },
   "dependencies": {
