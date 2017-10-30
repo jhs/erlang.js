@@ -16,7 +16,8 @@ var iolist = require('./iolist.js')
 var async = require('./async.js')
 
 function blob_to_term(blob){
-  return async.blob_to_buffer().then(decode);
+  return async.blob_to_buffer(blob)
+    .then(decode)
 }
 
 module.exports =
