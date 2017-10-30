@@ -1,79 +1,79 @@
 type Buffer = Uint8Array | ArrayBuffer;
-type ByteArray = any[]
+type ByteArray = any[];
 
 declare class Encoder {
-    encode(term): ByteArray;
+  encode(term): ByteArray;
 
-    undefined(x): ByteArray;
+  undefined(x): ByteArray;
 
-    null(x): ByteArray;
+  null(x): ByteArray;
 
-    number(x): ByteArray;
+  number(x): ByteArray;
 
-    int(x): ByteArray;
+  int(x): ByteArray;
 
-    array(x): ByteArray;
+  array(x): ByteArray;
 
-    object(x): ByteArray;
+  object(x): ByteArray;
 
-    atom(x): ByteArray;
+  atom(x): ByteArray;
 
-    tuple(x): ByteArray;
+  tuple(x): ByteArray;
 
-    buffer(x): ByteArray;
+  buffer(x): ByteArray;
 
-    string(x): ByteArray;
+  string(x): ByteArray;
 
-    boolean(x): ByteArray;
+  boolean(x): ByteArray;
 }
 
-interface encode {
-    (term: any): Buffer;
+interface Encode {
+  (term: any): Buffer;
 
-    Encoder: Encoder;
+  Encoder: Encoder;
 
-    optlist_to_term(opts: any[]): any[];
+  optlist_to_term(opts: any[]): any[];
 
-    optlist_to_binary(opts: any[]): Buffer;
+  optlist_to_binary(opts: any[]): Buffer;
 }
 
 declare class Decoder {
-    constructor(bin: ArrayBuffer)
+  constructor(bin: ArrayBuffer)
 
-    decode(): any;
+  decode(): any;
 
-    SMALL_INTEGER(): any;
+  SMALL_INTEGER(): any;
 
-    INTEGER(): any;
+  INTEGER(): any;
 
-    STRING(): any;
+  STRING(): any;
 
-    ATOM(): any;
+  ATOM(): any;
 
-    LIST(): any;
+  LIST(): any;
 
-    LARGE_TUPLE(): any;
+  LARGE_TUPLE(): any;
 
-    SMALL_TUPLE(): any;
+  SMALL_TUPLE(): any;
 
-    BINARY(): any;
+  BINARY(): any;
 }
 
-interface decode {
-    (term: Buffer): any;
+interface Decode {
+  (term: Buffer): any;
 
-    Decoder: Decoder
+  Decoder: Decoder
 }
 
-interface iolist {
-    to_buffer(list): Buffer
+interface IOList {
+  to_buffer(list): Buffer
 
-    size(list): number;
+  size(list): number;
 }
 
-declare let encode: encode;
-declare let decode: decode;
-declare let iolist: iolist;
+declare let encode: Encode;
+declare let decode: Decode;
+declare let iolist: IOList;
 
 export function term_to_binary(term: any): Buffer;
 
