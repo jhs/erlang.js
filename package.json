@@ -1,20 +1,51 @@
-{ "name": "erlang"
-, "version": "1.0.1"
-, "author": { "name": "Jason Smith", "email": "jason.h.smith@gmail.com" }
-, "description": "Erlang interoperability with Javascript"
-, "homepage": "http://github.com/iriscouch/erlang.js"
-, "repository": { "type": "git"
-                , "url": "git://github.com/iriscouch/erlang.js" }
-, "engines": [ "node" ]
-, "main": "./api.js"
-, "scripts": { "test" : "tap test/"
-             }
-
-, "dependencies": { "debug": "~1.0.4"
-                  }
-
-, "devDependencies": { "tap": "~0.4.8"
-                     , "async": "~0.2.10"
-                     , "traceback": "~0.3.1"
-                     }
+{
+  "name": "@beenotung/erlang",
+  "version": "1.4.3",
+  "author": "Jason Smith <jason.h.smith@gmail.com>",
+  "contributors": [
+    "Beeno Tung <aabbcc1241@yahoo.com.hk>"
+  ],
+  "description": "Erlang interoperability with Javascript",
+  "homepage": "http://github.com/beenotung/erlang.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/beenotung/erlang.js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/beenotung/erlang.js/issues"
+  },
+  "main": "./api.js",
+  "types": "./api.d.ts",
+  "scripts": {
+    "lint": "tslint -p .",
+    "build": "tsc && run-p buildType:*",
+    "buildType:async": "tsc -d async.ts || true",
+    "buildType:object": "tsc -d object.ts || true",
+    "pretest": "npm run build",
+    "prepublishOnly": "npm test",
+    "test": "npm run lint && tap test/"
+  },
+  "dependencies": {
+    "arraybuffer-to-buffer": "^0.0.4",
+    "debug": "~1.0.4",
+    "util": "^0.10.3"
+  },
+  "devDependencies": {
+    "@angular/compiler": ">=4.0.0-beta",
+    "@angular/core": ">=4.0.0-beta",
+    "async": "~0.2.10",
+    "codelyzer": "^3.2.2",
+    "npm-run-all": "^4.1.1",
+    "rxjs": "^5.0.1",
+    "tap": "~0.4.8",
+    "traceback": "~0.3.1",
+    "tslint": "^5.8.0",
+    "tslint-eslint-rules": "^4.1.1",
+    "typescript": "^2.5.3",
+    "zone.js": "^0.8.4"
+  },
+  "directories": {
+    "test": "test"
+  },
+  "license": "ISC"
 }

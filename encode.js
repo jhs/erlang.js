@@ -18,6 +18,7 @@ module.exports.optlist_to_binary = optlist_to_binary
 
 var util = require('util')
 var lib = require('./lib.js')
+var object = require('./object.js')
 var typeOf = lib.typeOf
 
 function Encoder () {
@@ -31,6 +32,10 @@ Encoder.prototype.encode = function(term) {
     throw new Error("Do not know how to encode " + typeOf(term) + ': ' + util.inspect(term))
 
   return encoder.apply(this, [term])
+}
+
+Encoder.prototype.undefined = function(x) {
+    return this.atom('undefined')
 }
 
 Encoder.prototype.null = function(x) {
@@ -74,8 +79,11 @@ Encoder.prototype.array = function(x) {
 
 Encoder.prototype.object = function(x) {
   var keys = Object.keys(x)
-  if(keys.length !== 1)
-    throw new Error("Don't know how to process: " + util.inspect(x))
+  if(keys.length !== 1){
+    // throw new Error("Don't know how to process: " + util.inspect(x))
+    var res = object.object_to_optlist(x);
+    return this.encode(res);
+  }
 
   var tag = keys[0]
   var val = x[tag]

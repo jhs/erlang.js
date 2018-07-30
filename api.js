@@ -13,6 +13,12 @@
 var encode = require('./encode.js')
 var decode = require('./decode.js')
 var iolist = require('./iolist.js')
+var async = require('./async.js')
+
+function blob_to_term(blob){
+  return async.blob_to_buffer(blob)
+    .then(decode)
+}
 
 module.exports =
   { term_to_binary   : encode
@@ -24,4 +30,6 @@ module.exports =
   , iolist_to_binary : iolist.to_buffer
   , iolist_to_buffer : iolist.to_buffer
   , iolist_size      : iolist.size
+
+  , blob_to_term     : blob_to_term
   }

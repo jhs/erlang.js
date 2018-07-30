@@ -1,0 +1,7 @@
+.*.swp
+/node_modules
+.idea/
+yarn.lock
+
+object.ts
+async.ts
